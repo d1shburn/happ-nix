@@ -89,13 +89,20 @@ stdenv.mkDerivation {
         mkdir -p "$out/bin"
 
         makeWrapper "$out/opt/happ/bin/Happ" "$out/bin/happ" \
-            --prefix PATH : "${lib.makeBinPath runtimeDeps}"
+            --prefix PATH : "${lib.makeBinPath runtimeDeps}" \
+            --prefix LD_LIBRARY_PATH : "${lib.getLib openssl}/lib"
 
         makeWrapper "$out/opt/happ/bin/happd" "$out/bin/happd" \
-            --prefix PATH : "${lib.makeBinPath runtimeDeps}"
+            --prefix PATH : "${lib.makeBinPath runtimeDeps}" \
+            --prefix LD_LIBRARY_PATH : "${lib.getLib openssl}/lib"
 
         substituteInPlace "$out/share/applications/Happ.desktop" \
             --replace-fail "/opt/happ/bin/Happ" "$out/bin/happ"
+
+        ln -sf "${lib.getLib openssl}/lib/libssl.so.3" "$out/opt/happ/lib/libssl.so"
+        ln -sf "${lib.getLib openssl}/lib/libcrypto.so.3" "$out/opt/happ/lib/libcrypto.so"
+        ln -sf "${lib.getLib openssl}/lib/libssl.so.3" "$out/opt/happ/lib/libssl.so.3"
+        ln -sf "${lib.getLib openssl}/lib/libcrypto.so.3" "$out/opt/happ/lib/libcrypto.so.3"
 
         runHook postInstall
     '';
